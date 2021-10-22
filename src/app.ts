@@ -1,8 +1,18 @@
 import express from "express";
-import { helloWorldRouter } from "./routes";
+import * as dotenv from "dotenv";
+import { helloWorldRouter, githubRouter } from "./routes";
 
+dotenv.config();
 const app = express();
 
-app.get("/", helloWorldRouter);
+app.use("/", helloWorldRouter);
+app.use("/github", githubRouter);
+
+app.use((req, res, next) => {
+  res.json({
+    error: `${req.url} - does not exist.`,
+    statusCode: 404,
+  });
+});
 
 export default app;
