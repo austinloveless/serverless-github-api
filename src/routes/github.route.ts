@@ -8,42 +8,42 @@ import {
 
 export const githubRouter = express.Router();
 
+// Returns information about a repo
 githubRouter.get("/pulls/:owner/:repo", async (req, res) => {
   const { owner, repo } = req.params;
-  const input = {
+  const response = await pullRequestsForARepo({
     owner,
     repo,
-  };
-  const response = await pullRequestsForARepo(input);
+  });
   if (response.error) {
     return res.status(response.statusCode).json(response);
   }
   res.status(200).json(response);
 });
 
+// Returns the number of commits for every pull request in a repo
 githubRouter.get("/pulls/:owner/:repo/commits", async (req, res) => {
   const { owner, repo } = req.params;
-  const input = {
+  const response: any = await numberOfCommitsForEveryPullRequest({
     owner,
     repo,
-  };
-  const response: any = await numberOfCommitsForEveryPullRequest(input);
+  });
   if (response.error) {
     return res.status(response.statusCode).json(response);
   }
   res.status(200).json(response);
 });
 
+// Returns the number of commits for a single pull request
 githubRouter.get(
   "/pulls/:owner/:repo/:pull_number/commits",
   async (req, res) => {
     const { owner, repo, pull_number } = req.params;
-    const input = {
+    const response: any = await numberOfCommitsForASinglePullRequest({
       owner,
       repo,
       pull_number,
-    };
-    const response: any = await numberOfCommitsForASinglePullRequest(input);
+    });
     if (response.error) {
       return res.status(response.statusCode).json(response);
     }

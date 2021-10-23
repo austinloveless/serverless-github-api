@@ -1,4 +1,4 @@
-import axios, { AxiosResponse } from "axios";
+import axios from "axios";
 
 import {
   PullRequestsCommits,
@@ -19,11 +19,8 @@ export const pullRequestsForARepo = async (input: OwnerRepo): Promise<any> => {
       }
     );
     return response.data;
-  } catch (error: any) {
-    return {
-      error: error.response.statusText,
-      statusCode: error.response.status || 500,
-    };
+  } catch (error) {
+    errorHandler(error, input);
   }
 };
 
@@ -31,7 +28,6 @@ export const numberOfCommitsForEveryPullRequest = async (input: OwnerRepo) => {
   try {
     const pullRequests = await pullRequestsForARepo(input);
     const pullRequestCommits: PullRequestsCommits[] = [];
-
     for (const pullRequest of pullRequests) {
       const obj: any = {};
       const commits: any = await axios.get(pullRequest.commits_url, {
@@ -47,11 +43,8 @@ export const numberOfCommitsForEveryPullRequest = async (input: OwnerRepo) => {
       pullRequestCommits.push(obj);
     }
     return pullRequestCommits;
-  } catch (error: any) {
-    return {
-      error: error.response.statusText,
-      statusCode: error.response.status || 500,
-    };
+  } catch (error) {
+    errorHandler(error, input);
   }
 };
 
@@ -69,10 +62,32 @@ export const numberOfCommitsForASinglePullRequest = async (
     );
 
     return { numberOfCommits: commits.data.length };
-  } catch (error: any) {
+  } catch (error) {
+    errorHandler(
+      error,
+      { owner: input.owner, repo: input.repo },
+      input.pull_number
+    );
+  }
+};
+
+export const errorHandler = (
+  error: any,
+  ownerRepo: OwnerRepo,
+  pull_number?: string
+) => {
+  if (error.response) {
     return {
-      error: error.response.statusText,
-      statusCode: error.response.status || 500,
+      error: error.response.statusText
+        ? error.response.statusText
+        : "Error completing request.",
+      statusCode: error.response.status ? error.response.status : 500,
     };
   }
+  return {
+    error: pull_number
+      ? `Could not find ${ownerRepo.owner}/${ownerRepo.repo}/${pull_number}`
+      : `Could not find ${ownerRepo.owner}/${ownerRepo.repo}`,
+    statusCode: 500,
+  };
 };
