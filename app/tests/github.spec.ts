@@ -3,7 +3,7 @@ import {
   numberOfCommitsForEveryPullRequest,
   numberOfCommitsForASinglePullRequest,
   errorHandler,
-} from "../handlers/github.handler";
+} from "../src/handlers/github.handler";
 import { pullRequestInfo } from "./mocks/pullRequestInfo.mock";
 import axios from "axios";
 
